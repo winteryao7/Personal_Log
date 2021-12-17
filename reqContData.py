@@ -14,6 +14,8 @@ restrictions = Restrictions(
     # gaps would be dealt with later
     channel="?HZ",
     reject_channels_with_gaps=False,
+    # the default value would be 0.9; which means at least 90% of the chunklength?
+    minimum_length = 0.0,
     # Guard against the same station having different names.
     minimum_interstation_distance_in_m=100.0)
 
