@@ -1,0 +1,18 @@
+# connecting a remote host loated in "Future City" Campus
+
+1. Turn on the sshd 
+
+a. How to check the status? Try: systemctl status sshd
+b. How to start sshd if it's off? Try: systemctl start sshd (it would require root's permission)
+
+2. Configure the IP 
+
+Try: ifconfig 
+Not sure about all details of the output, but generally inet would give you the HostName: 
+
+ssh -AX winteryao@172.27.143.194 
+(note: it seems that the ip configuration should be identical so it can be recognized, use CUG)
+
+3. Enable sshd service while restarting/rebooting the machine? 
+
+Try: systemctl enable sshd.service
