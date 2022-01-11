@@ -24,6 +24,7 @@ a few parameters if necessary (sampling rate; frequency range; instrument respon
 # Setup connection to remote host 
 
 systemctl status sshd 
+
 systemctl start sshd
 
 figure out the ip address: ifconfig
