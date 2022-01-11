@@ -20,3 +20,10 @@ About running NoisePy
 I stored my data as mseed format, and then using S0B_to_ASDF.py to convert to h5 format
 A few places: a) it takes some time to generate the file allfiles_time.txt; b) modify 
 a few parameters if necessary (sampling rate; frequency range; instrument response, etc)
+
+# Setup connection to remote host 
+
+systemctl status sshd 
+systemctl start sshd
+
+figure out the ip address: ifconfig
