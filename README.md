@@ -28,3 +28,7 @@ systemctl status sshd
 systemctl start sshd
 
 figure out the ip address: ifconfig
+
+
+# Dispersion analysis (from CC function)
+
