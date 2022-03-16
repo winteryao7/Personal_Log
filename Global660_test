@@ -1,0 +1,16 @@
+I played with a few things regarding the 660-interface 
+
+1. A dataset from Huang et al. (2019) 
+
+https://drum.lib.umd.edu/handle/1903/21819
+
+(as discussed with Prof. Tian, the absolute depth of the 660-interface would 
+depends on corrections from the crustal and upper mantle velocity model)
+
+2. SP12RTS (https://cube.rhul.ac.uk/~paulak/downloads_sp12rts.html)
+tomographic model of both shear-wave and compressional-wave velocity variations in the mantle
+
+A useful GMT5 plotting script provided by the authors. 
+
+3. I generated a velocity variations at a depth of 660 km (the "interface")
+mkmap 3 5 660 
