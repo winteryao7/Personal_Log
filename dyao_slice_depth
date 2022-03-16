@@ -1,0 +1,53 @@
+#!/bin/tcsh -f
+
+set BIN  = $TOMO_S20RTS/bin
+
+set mod   = $1
+set depth = $2
+
+#-- Models:
+if      ($mod == 0) then
+  set modelname = S20RTS
+  set ref   = "Ritsema et al. (1999)"
+else if ($mod == 1) then
+  set modelname = S40RTS
+  set ref   = "Ritsema et al. (2010)"
+else if ($mod == 2) then
+  set modelname = SP12RTS..ES
+  set ref   = "Koelemeijer et al. (2016)"
+else if ($mod == 3) then
+  set modelname = SP12RTS..EP
+  set ref   = "Koelemeijer et al. (2016)"
+endif
+set model  = $modelname.sph
+
+echo $model >  in_depmaphj_jr
+
+echo depth= $depth
+
+echo $model >  in_depmaphj_jr
+echo $depth >> in_depmaphj_jr
+$BIN/depmaphj_jr <  in_depmaphj_jr > out_depmax
+
+set md =  $model:t:r
+set rawfl = `/bin/ls -1 $md.raw`
+
+set lmin  = 1
+set lmax = `head -n1 $rawfl | awk '{print $1}' `
+set isp = 1
+set xmin   = -180
+
+echo Turning the ".raw" file into "x-y-z" file
+echo $rawfl      >  in_raw2xyz
+echo map.xyz     >> in_raw2xyz
+echo $isp        >> in_raw2xyz                                                                             
+echo 1.00        >> in_raw2xyz
+echo $lmin $lmax >> in_raw2xyz
+echo $xmin       >> in_raw2xyz
+$BIN/raw2xyz_jr < in_raw2xyz
+
+mv map.xyz map.${depth}km.xyz
+
+#-- clean up
+/bin/rm in_mkrb in_raw2xyz in_depmaphj_jr out_depmax
+/bin/rm $modelname.raw

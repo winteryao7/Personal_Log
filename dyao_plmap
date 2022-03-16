@@ -1,0 +1,91 @@
+#!/bin/tcsh -f
+
+set BIN  = $TOMO_S20RTS/bin
+
+if (-e .gmtcommands ) /bin/rm .gmtcommands .gmtdefaults
+
+gmt gmtset PS_MEDIA a4
+gmt gmtset PROJ_LENGTH_UNIT inch
+gmt gmtset PS_PAGE_ORIENTATION portrait
+
+gmt gmtset FONT_TITLE 14p,Helvetica,black
+gmt gmtset FONT_LABEL 10p,Helvetica,black
+gmt gmtset FONT_ANNOT 8p,Helvetica,black
+
+#-- Plot hotspot locations (=1 is yes)
+set plot_hotspots = 1
+set hpfl  = Sleep_hotspots.list
+#-- Plot plate boundaries (=1 is yes)
+set plot_plateboundaries = 1
+set plbfl = plate_boundaries.gmt
+
+#-- discreet colourscale (=0)
+set icont = 0
+#-- black-and-white =0; colour =1
+set col   = 1
+#-- Using Yu Gu's GU12 coulour scheme (12 values)
+#-- or TOMOGREY (6 values) for black-and-white
+#-- Grid contour (=1 is yes)
+#-- 0 is recommended when using gu12.chj (when col = 1)
+set grid_contours = 0
+
+if ($col == 1) then
+  echo $TOMO_S20RTS/colourscales/gu12.chj      >  in_mkrb
+else
+  echo $TOMO_S20RTS/colourscales/tomogrey6.chj >  in_mkrb
+endif
+echo $icont          >> in_mkrb
+echo 1               >> in_mkrb
+$BIN/mkrb_jr < in_mkrb > col.cpt
+
+#----- projection -------------
+set reg    = -R-180/180/-90/90
+set prjwd  =  6
+#-- central meridian
+set projct =  0
+#-- international dateline
+set projct =  180
+#-- eastern Asia
+set projct =  135
+set proj   = -JW$projct/$prjwd
+#------------------------------
+
+set xmin   = -180
+set xmax   =  180
+
+#echo gmt surface map.xyz -Gmap1.grd -I$isp -N1 $reg 
+#gmt surface map.xyz -Gmap1.grd -I$isp -N1 $reg 
+#gmt grdsample map1.grd -Gmap.grd -I0.8 -L
+#gmt grdimage map.grd -Ccol.cpt $proj $reg  -X1.5 -Y4     -P -V -K >  map.ps
+#if ( $grid_contours ) then
+	#    gmt grdcontour map.grd -Ccol.cpt -A- $proj $reg -W0.5,--  -O -P -V -K >> map.ps
+#endif
+
+
+#gmt xyz2grd map.xyz $reg -I1/1 -Gmap1.grd
+#gmt grdgradient map1.grd -A20 -Gmap1.grad.intt -V -M
+#gmt grdimage map1.grd -Ccol.cpt $proj $reg  -X1.5 -Y4 -P -V -K >  map.ps
+gmt pscontour map.xyz $reg $proj -Ccol.cpt -A -I -X1.5 -Y4 -P -V -K > map.ps
+gmt pscoast $reg $proj -Bg45/g45 -Dc -A10000 -W1 -O -P -K -V >> map.ps
+
+#-- hotspots and plate boundaries
+if ( $plot_plateboundaries) then
+  gmt psxy  $reg $proj $plbfl -W0.8,255 -O -P -V -K >> map.ps
+endif
+if ( $plot_hotspots ) then
+  awk '{print $3, $2}' $hpfl | gmt psxy $reg $proj -G255 -W0.5 -St0.11 -O -P -K >> map.ps
+endif
+
+gmt psscale -D1/3/3.5/0.22h -Ccol.cpt -B2 -X2.0 -Y-3.5 -O -P -V -K | grep -v 'E -2' >> map.ps
+
+gmt pstext << END -R0/10/0/10 -Jx0.2 -Y2.3 -N -O -P -V -F+f+j >> map.ps
+ 5.0  4.1 12p,Helvetica-Bold MC Velocity variation from 1-D
+-4.0  3.0 15p,Helvetica-Bold MR -1%
+14.0  3.0 15p,Helvetica-Bold ML +1%
+-5.5  0.0 11p,Helvetica-Bold BL SP12RTS..EP
+END
+
+# xyz2grd $inputBVs -R -I0.1/0.1 -GNI_beta.grd
+# grdgradient NI_beta.grd -A20 -GNI_beta.grd.int -V -M
+# grdimage NI_beta.grd -R -J -Cmycpt.cpt -INI_beta.grd.int -P -K -O >> $out
+# pscoast -R -J -Wthinnest -Na -Df -P -O -K >> $out
