@@ -14,3 +14,11 @@ A useful GMT5 plotting script provided by the authors.
 
 3. I generated a velocity variations at a depth of 660 km (the "interface")
 mkmap 3 5 660 
+
+map.660km.pdf (a map generated from Koelemeijer's script, originally from J. Ritsema) 
+A depth slice at 660 km (I suppose it would be interpolated somehow, spline method)
+
+map.pdf: 
+each observation point (lon, lat, depth); then I obtain the depth slice based on the depth; 
+find the closest 4 points to the obervation point, and calcculate the weighted average. 
+Then I plot it out (~480 points; see the script)
