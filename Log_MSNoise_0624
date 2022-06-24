@@ -1,0 +1,67 @@
+# This is generally based on the nice tutorial page (http://msnoise.org/doc/how_tos.html)
+
+Test 1: cross-station CC (ZZ component only) 
+
+Steps: 
+
+msnoise db init --tech 1
+
+msnoise config set startdate=2018-10-15
+msnoise config set enddate=2021-05-15
+msnoise config set overlap=0.5
+msnoise config set mov_stack=1,10,20
+# I changed the stack length (to obtain more stable CCF)
+
+# all MSEED file are stored at ../LEEP_Vertical (single component)
+# I still haven't figured out how to add station meta information so I can generate a distance plot
+msnoise scan_archive --path ../LEEP_Vertical/ --recursively
+msnoise populate --fromDA
+msnoise new_jobs --init
+
+# filter table (0.1 - 1 Hz, pre_filter?)
+msnoise db execute "insert into filters (ref, low, mwcs_low, high, mwcs_high, rms_threshold, mwcs_wlen, mwcs_step, used) values (1, 0.1, 0.1, 1.0, 1.0, 0.0, 12.0, 4.0, 1)"
+
+msnoise compute_cc
+msnoise stack -r
+msnoise reset STACK
+msnoise stack -m
+msnoise compute_mwcs
+msnoise compute_dtt
+msnoise plot dvv
+
+Test 2: single-station cross-component CC (such as EZ or NZ)
+
+
+Steps: 
+
+msnoise db init --tech 1
+
+msnoise config set startdate=2018-10-15
+msnoise config set enddate=2019-12-31
+msnoise config set overlap=0.5
+msnoise config set mov_stack=1,5,10
+msnoise config set components_to_compute_single_station=Z2
+# I changed the stack length (to obtain more stable CCF)
+# set up components to compute (Z2) -- components_to_compute_single_station
+
+# all MSEED file are stored at ../LEEP (three components)
+msnoise scan_archive --path ../LEEP/ONYN --recursively
+msnoise populate --fromDA
+msnoise new_jobs --init
+
+# filter table (0.1 - 1 Hz, pre_filter?)
+msnoise db execute "insert into filters (ref, low, mwcs_low, high, mwcs_high, rms_threshold, mwcs_wlen, mwcs_step, used) values (1, 0.1, 0.1, 1.0, 1.0, 0.0, 12.0, 4.0, 1)"
+
+msnoise compute_cc
+msnoise stack -r
+msnoise reset STACK
+msnoise stack -m
+msnoise compute_mwcs
+msnoise compute_dtt
+msnoise plot dvv
+
+############ Things to be figured out ############
+a. it seems I got many warnings while computing dtt. 
+Is this due to data gaps? 
+
+b. station meta info
